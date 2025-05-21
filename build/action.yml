@@ -1,0 +1,72 @@
+# This is a GitHub Action that builds a Vue SPA.
+# It sets up Node.js, installs dependencies, builds the project, and uploads the build artifacts.
+
+name: 'Build Vue SPA'
+description: 'Builds a Vue Single Page Application (SPA) using Node.js.'
+
+# Inputs
+# The action accepts four inputs: node-version, working-directory, build-directory, and build-command.
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  working-directory:
+    description: 'Directory containing the project'
+    required: false
+    default: '.'
+  build-directory:
+    description: 'Directory to store the build artifacts'
+    required: false
+    default: 'dist'
+  build-command:
+    description: 'Command to build the project'
+    required: false
+    default: 'npm run build'
+
+# Runs
+# The action runs in a composite environment, which allows for multiple steps.
+runs:
+  using: 'composite' 
+  steps:
+    - name: Check working directory    # Check the working directory
+      run: |
+        if [ ! -d "${{ inputs.working-directory }}" ]; then
+          echo "Error: Working directory does not exist."
+          exit 1
+        fi
+      shell: bash
+
+    - name: Checkout code              # Checkout the code from the repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js              # Set up Node.js environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Cache Node.js modules      # Cache Node.js modules to speed up builds
+      uses: actions/cache@v4
+      with:
+        path: | 
+          ~/.npm
+          ${{ inputs.working-directory }}/node_modules
+        key: ${{ runner.os }}-node-${{ inputs.working-directory }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ inputs.working-directory }}-
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies       # Install project dependencies from package.json
+      working-directory: ${{ inputs.working-directory }}
+      run: npm ci # equivalent to npm install but faster and more reliable
+      shell: bash
+
+    - name: Build project              # Build the Vue project
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ inputs.build-command }}
+      shell: bash
+
+    - name: Upload build artifacts     # Upload the built artifacts to GitHub Pages
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ${{ inputs.working-directory }}/${{ inputs.build-directory }}

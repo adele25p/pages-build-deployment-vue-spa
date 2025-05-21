@@ -1,0 +1,40 @@
+# This is a GitHub Action that deploys a Vue SPA.
+# It uses the GitHub Pages Action to deploy the built files to GitHub Pages.
+
+name: 'Deploy Vue SPA to GitHub Pages'
+description: 'Deploy a Vue Single Page Application (SPA) to GitHub Pages'
+
+# Inputs
+# The action accepts one input: build-directory.
+inputs:
+  build-directory:
+    description: 'The directory containing the built files'
+    required: false
+    default: 'dist'
+
+# Outputs
+# The action outputs the page_url, which is the URL of the deployed page.
+outputs:
+  page_url:
+    description: 'The URL of the deployed page'
+    value: ${{ steps.deployment.outputs.page_url }}
+
+# Runs
+# The action runs in a composite environment, which allows for multiple steps.
+runs:
+  using: 'composite'
+  steps:
+    - name: Check build directory      # Check the build directory
+      run: |
+        if [ ! -d "${{ inputs.build-directory }}" ]; then
+          echo "Error: Build directory does not exist."
+          exit 1
+        fi
+      shell: bash
+
+    - name: Checkout code              # Checkout the code from the repository
+      uses: actions/checkout@v4
+
+    - name: Deploy to GitHub Pages     # Deploy the built files to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
