@@ -75,4 +75,3 @@ See `deploy/README.md` for deploy action documentation.
 | [GitHub Pages Documentation](https://docs.github.com/en/pages) | Understand how to configure and use GitHub Pages. |
 | [Vue.js Deployment Guide](https://vuejs.org/guide/best-practices/production-deployment.html) | Official Vue documentation on deploying applications. |
 | [Vite Deployment Guide](https://vitejs.dev/guide/static-deploy.html) | Instructions for deploying Vite apps to static hosts. |
-| [Nuxt Deployment (SPA Mode)](https://nuxt.com/docs/guide/deploy/spa-deployment) | Guide for deploying Nuxt in SPA mode. |
